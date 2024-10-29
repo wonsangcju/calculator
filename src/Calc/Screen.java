@@ -8,6 +8,7 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.ImageIcon;
@@ -31,17 +32,24 @@ import javax.swing.JTextField;
  * 	<li>2024.10.23 09:00 최초 생성</li>
  * </ul>
  */
-public class Screen extends JFrame {
+public class Screen extends JFrame implements ActionListener {
 	
 	/**
 	 * @changelog
 	 * <ul>
 	 * 	<li>2024.10.23 09:00 최초 생성</li>
 	 * 	<li>2024.10.25 10:00 각 패널들을 별도의 메소드로 분리</li>
+	 * 	<li>2024.10.29 19:00 버튼들을 개별 생성</li>
 	 * </ul>
 	 */
+
+	JTextField calculation, result;
 	
-	public JButton[] button = new JButton[24];
+	JButton rateButton, clearEntryButton, clearButton, deleteButton, reciprocalButton, 
+	squareButton, rootButton, divideButton, sevenButton, eightButton, nineButton, 
+	multiplyButton, fourButton, fiveButton, sixButton, minusButton, oneButton, twoButton, 
+	threeButton, plusButton, nepoButton, zeroButton, pointButton, equalButton;
+	
 	public Screen() {
 		this.setTitle("계산기");
 		this.setSize(335, 540);
@@ -104,7 +112,7 @@ public class Screen extends JFrame {
 		panel2.setBackground(Color.black);
 		
 		//현재 계산하고 있는 식이 써질 텍스트필드 생성
-		JTextField calculation = new JTextField("");
+		calculation = new JTextField("");
 		calculation.setBackground(new Color(32, 32, 32));
 		calculation.setHorizontalAlignment(JTextField.RIGHT);
 		calculation.setFont(new Font("Seoge UI", Font.PLAIN, 15));
@@ -114,7 +122,7 @@ public class Screen extends JFrame {
 		panel2.add(calculation, BorderLayout.NORTH);
 		
 		//결과와 현재 숫자가 써질 텍스트필드 생성
-		JTextField result = new JTextField("0");
+		result = new JTextField("0");
 		result.setBackground(new Color(32, 32, 32));
 		result.setHorizontalAlignment(JTextField.RIGHT);
 		result.setFont(new Font("Seoge UI", Font.PLAIN, 50));
@@ -157,6 +165,7 @@ public class Screen extends JFrame {
 		 * @changelog
 		 * <ul>
 		 * 	<li>2024.10.25 별도의 메소드로 분리</li>
+		 * 	<li>2024.10.29 14:00 버튼 개별로 작성</li>
 		 * <ul>
 		 */
 		
@@ -164,41 +173,73 @@ public class Screen extends JFrame {
 		southPanel.setLayout(new GridLayout(6, 4, 3, 3));
 		southPanel.setBackground(Color.black);
 		
-		//연산, 숫자 버튼 생성
-		for (int i = 0; i < button.length; i++) {
-			button[i] = new JButton();
-			button[i].setPreferredSize(new Dimension(50, 50));
-			button[i].setForeground(Color.white);
-			button[i].setFont(new Font("Seoge UI", Font.PLAIN, 17));
-			//button[i].addActionListener(this);
-			button[i].setBorder(null);
-			southPanel.add(button[i]);
-		}
-		
-		button[0].setText("%"); button[1].setText("CE"); button[2].setText("C"); 
-		button[3].setText("⌫"); button[4].setText("¹/x"); button[5].setText("x²");
-		button[6].setText("²√x"); button[7].setText("÷"); button[8].setText("7");
-		button[9].setText("8"); button[10].setText("9"); button[11].setText("×");
-		button[12].setText("4"); button[13].setText("5"); button[14].setText("6");
-		button[15].setText("-"); button[16].setText("1"); button[17].setText("2");
-		button[18].setText("3"); button[19].setText("+"); button[20].setText("+/-");
-		button[21].setText("0"); button[22].setText("."); button[23].setText("=");
-		
-		int[] symbolColor = {0,1,2,3,4,5,6,7,11,15,19};
-		for (int i : symbolColor) {
-			button[i].setBackground(new Color(50, 50, 50));
-		}
-		int[] numColor = {8,9,10,12,13,14,16,17,18,20,21,22};
-		for (int i : numColor) {
-			button[i].setBackground(new Color(59, 59, 59));
-		}
-		button[23].setBackground(new Color(76, 194, 255));
-		
-		
-		
+		rateButton = new JButton();
+		new decorateNumberButton(rateButton, southPanel, "%", 50, 50, 50);
+		clearEntryButton = new JButton();
+		new decorateNumberButton(clearEntryButton, southPanel, "CE", 50, 50, 50);
+		clearButton = new JButton();
+		new decorateNumberButton(clearButton, southPanel, "C", 50, 50, 50);
+		deleteButton = new JButton();
+		new decorateNumberButton(deleteButton, southPanel, "⌫", 50, 50, 50);
+		reciprocalButton = new JButton();
+		new decorateNumberButton(reciprocalButton, southPanel, "¹/x", 50, 50, 50);
+		squareButton = new JButton();
+		new decorateNumberButton(squareButton, southPanel, "x²", 50, 50, 50);
+		rootButton = new JButton();
+		new decorateNumberButton(rootButton, southPanel, "²√x", 50, 50, 50);
+		divideButton = new JButton();
+		new decorateNumberButton(divideButton, southPanel, "÷", 50, 50, 50);
+		sevenButton = new JButton();
+		new decorateNumberButton(sevenButton, southPanel, "7", 59, 59, 59);
+		sevenButton.addActionListener(this);
+		eightButton = new JButton();
+		new decorateNumberButton(eightButton, southPanel, "8", 59, 59, 59);
+		eightButton.addActionListener(this);
+		nineButton = new JButton();
+		new decorateNumberButton(nineButton, southPanel, "9", 59, 59, 59);
+		nineButton.addActionListener(this);
+		multiplyButton = new JButton();
+		new decorateNumberButton(multiplyButton, southPanel, "×", 50, 50, 50);
+		fourButton = new JButton();
+		new decorateNumberButton(fourButton, southPanel, "4", 59, 59, 59);
+		fourButton.addActionListener(this);
+		fiveButton = new JButton();
+		new decorateNumberButton(fiveButton, southPanel, "5", 59, 59, 59);
+		fiveButton.addActionListener(this);
+		sixButton = new JButton();
+		new decorateNumberButton(sixButton, southPanel, "6", 59, 59, 59);
+		sixButton.addActionListener(this);
+		minusButton = new JButton();
+		new decorateNumberButton(minusButton, southPanel, "-", 50, 50, 50);
+		oneButton = new JButton();
+		new decorateNumberButton(oneButton, southPanel, "1", 59, 59, 59);
+		oneButton.addActionListener(this);
+		twoButton = new JButton();
+		new decorateNumberButton(twoButton, southPanel, "2", 59, 59, 59);
+		twoButton.addActionListener(this);
+		threeButton = new JButton();
+		new decorateNumberButton(threeButton, southPanel, "3", 59, 59, 59);
+		threeButton.addActionListener(this);
+		plusButton = new JButton();
+		new decorateNumberButton(plusButton, southPanel, "+", 50, 50, 50);
+		nepoButton = new JButton();
+		new decorateNumberButton(nepoButton, southPanel, "+/-", 59, 59, 59);
+		zeroButton = new JButton();
+		new decorateNumberButton(zeroButton, southPanel, "0", 59, 59, 59);
+		zeroButton.addActionListener(this);
+		pointButton = new JButton();
+		new decorateNumberButton(pointButton, southPanel, ".", 59, 59, 59);
+		pointButton.addActionListener(this);
+		equalButton = new JButton();
+		new decorateNumberButton(equalButton, southPanel, "=", 76, 194, 255);
+				
 		this.add(southPanel, BorderLayout.SOUTH);
 	}
 
+	public void actionPerformed(ActionEvent e) {
+		JButton clickButton = (JButton) e.getSource();
+		result.setText(result.getText() + clickButton.getText());
+	}
 	public static void main(String[] args) {
 		new Screen();
 	}
