@@ -32,7 +32,7 @@ import javax.swing.JTextField;
  * 	<li>2024.10.23 09:00 최초 생성</li>
  * </ul>
  */
-public class Screen extends JFrame implements ActionListener {
+public class Screen extends JFrame{
 	
 	/**
 	 * @changelog
@@ -40,6 +40,7 @@ public class Screen extends JFrame implements ActionListener {
 	 * 	<li>2024.10.23 09:00 최초 생성</li>
 	 * 	<li>2024.10.25 10:00 각 패널들을 별도의 메소드로 분리</li>
 	 * 	<li>2024.10.29 19:00 버튼들을 개별 생성</li>
+	 *	<li>2024.10.30 16:00 ActionListener 추가</li>
 	 * </ul>
 	 */
 
@@ -50,11 +51,13 @@ public class Screen extends JFrame implements ActionListener {
 	multiplyButton, fourButton, fiveButton, sixButton, minusButton, oneButton, twoButton, 
 	threeButton, plusButton, nepoButton, zeroButton, pointButton, equalButton;
 	
+	private boolean isCalculationPerformed = false; //이전에 계산을 한적이 있는지 검사하는 변수
+	
 	public Screen() {
 		this.setTitle("계산기");
 		this.setSize(335, 540);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.getContentPane().setBackground(Color.black);
+		this.getContentPane().setBackground(Color.black);		
 		
 		//계산기 아이콘 변경
 		Toolkit kit = Toolkit.getDefaultToolkit();
@@ -173,73 +176,124 @@ public class Screen extends JFrame implements ActionListener {
 		southPanel.setLayout(new GridLayout(6, 4, 3, 3));
 		southPanel.setBackground(Color.black);
 		
+		numberButtonListener numListener = new numberButtonListener();
+		calculateButtonListener calListener = new calculateButtonListener();
+		
 		rateButton = new JButton();
-		new decorateNumberButton(rateButton, southPanel, "%", 50, 50, 50);
+		new decorateButton(rateButton, southPanel, "%", 50, 50, 50, numListener);
 		clearEntryButton = new JButton();
-		new decorateNumberButton(clearEntryButton, southPanel, "CE", 50, 50, 50);
+		new decorateButton(clearEntryButton, southPanel, "CE", 50, 50, 50, numListener);
 		clearButton = new JButton();
-		new decorateNumberButton(clearButton, southPanel, "C", 50, 50, 50);
+		new decorateButton(clearButton, southPanel, "C", 50, 50, 50, numListener);
 		deleteButton = new JButton();
-		new decorateNumberButton(deleteButton, southPanel, "⌫", 50, 50, 50);
+		new decorateButton(deleteButton, southPanel, "⌫", 50, 50, 50, numListener);
 		reciprocalButton = new JButton();
-		new decorateNumberButton(reciprocalButton, southPanel, "¹/x", 50, 50, 50);
+		new decorateButton(reciprocalButton, southPanel, "¹/x", 50, 50, 50, numListener);
 		squareButton = new JButton();
-		new decorateNumberButton(squareButton, southPanel, "x²", 50, 50, 50);
+		new decorateButton(squareButton, southPanel, "x²", 50, 50, 50, numListener);
 		rootButton = new JButton();
-		new decorateNumberButton(rootButton, southPanel, "²√x", 50, 50, 50);
+		new decorateButton(rootButton, southPanel, "²√x", 50, 50, 50, numListener);
 		divideButton = new JButton();
-		new decorateNumberButton(divideButton, southPanel, "÷", 50, 50, 50);
+		new decorateButton(divideButton, southPanel, "÷", 50, 50, 50, calListener);
 		sevenButton = new JButton();
-		new decorateNumberButton(sevenButton, southPanel, "7", 59, 59, 59);
-		sevenButton.addActionListener(this);
+		new decorateButton(sevenButton, southPanel, "7", 59, 59, 59, numListener);
 		eightButton = new JButton();
-		new decorateNumberButton(eightButton, southPanel, "8", 59, 59, 59);
-		eightButton.addActionListener(this);
+		new decorateButton(eightButton, southPanel, "8", 59, 59, 59, numListener);
 		nineButton = new JButton();
-		new decorateNumberButton(nineButton, southPanel, "9", 59, 59, 59);
-		nineButton.addActionListener(this);
+		new decorateButton(nineButton, southPanel, "9", 59, 59, 59, numListener);
 		multiplyButton = new JButton();
-		new decorateNumberButton(multiplyButton, southPanel, "×", 50, 50, 50);
+		new decorateButton(multiplyButton, southPanel, "×", 50, 50, 50, calListener);
 		fourButton = new JButton();
-		new decorateNumberButton(fourButton, southPanel, "4", 59, 59, 59);
-		fourButton.addActionListener(this);
+		new decorateButton(fourButton, southPanel, "4", 59, 59, 59, numListener);
 		fiveButton = new JButton();
-		new decorateNumberButton(fiveButton, southPanel, "5", 59, 59, 59);
-		fiveButton.addActionListener(this);
+		new decorateButton(fiveButton, southPanel, "5", 59, 59, 59, numListener);
 		sixButton = new JButton();
-		new decorateNumberButton(sixButton, southPanel, "6", 59, 59, 59);
-		sixButton.addActionListener(this);
+		new decorateButton(sixButton, southPanel, "6", 59, 59, 59, numListener);
 		minusButton = new JButton();
-		new decorateNumberButton(minusButton, southPanel, "-", 50, 50, 50);
+		new decorateButton(minusButton, southPanel, "-", 50, 50, 50, calListener);
 		oneButton = new JButton();
-		new decorateNumberButton(oneButton, southPanel, "1", 59, 59, 59);
-		oneButton.addActionListener(this);
+		new decorateButton(oneButton, southPanel, "1", 59, 59, 59, numListener);
 		twoButton = new JButton();
-		new decorateNumberButton(twoButton, southPanel, "2", 59, 59, 59);
-		twoButton.addActionListener(this);
+		new decorateButton(twoButton, southPanel, "2", 59, 59, 59, numListener);
 		threeButton = new JButton();
-		new decorateNumberButton(threeButton, southPanel, "3", 59, 59, 59);
-		threeButton.addActionListener(this);
+		new decorateButton(threeButton, southPanel, "3", 59, 59, 59, numListener);
 		plusButton = new JButton();
-		new decorateNumberButton(plusButton, southPanel, "+", 50, 50, 50);
+		new decorateButton(plusButton, southPanel, "+", 50, 50, 50, calListener);
 		nepoButton = new JButton();
-		new decorateNumberButton(nepoButton, southPanel, "+/-", 59, 59, 59);
+		new decorateButton(nepoButton, southPanel, "+/-", 59, 59, 59, numListener);
 		zeroButton = new JButton();
-		new decorateNumberButton(zeroButton, southPanel, "0", 59, 59, 59);
-		zeroButton.addActionListener(this);
+		new decorateButton(zeroButton, southPanel, "0", 59, 59, 59, numListener);
 		pointButton = new JButton();
-		new decorateNumberButton(pointButton, southPanel, ".", 59, 59, 59);
-		pointButton.addActionListener(this);
+		new decorateButton(pointButton, southPanel, ".", 59, 59, 59, numListener);
 		equalButton = new JButton();
-		new decorateNumberButton(equalButton, southPanel, "=", 76, 194, 255);
+		new decorateButton(equalButton, southPanel, "=", 76, 194, 255, numListener);
 				
 		this.add(southPanel, BorderLayout.SOUTH);
 	}
-
-	public void actionPerformed(ActionEvent e) {
-		JButton clickButton = (JButton) e.getSource();
-		result.setText(result.getText() + clickButton.getText());
+	
+	public class numberButtonListener implements ActionListener {
+		public void actionPerformed(ActionEvent e) {
+			JButton clickNumberButton = (JButton) e.getSource();
+			if (isCalculationPerformed) {
+				result.setText(clickNumberButton.getText());
+				isCalculationPerformed = false;
+			} else {
+				if (result.getText().equals("0")) { //result 필드의 텍스트가 0일 경우 지우고 숫자 작성
+			        result.setText(clickNumberButton.getText());
+			    } else {
+			    	result.setText(result.getText() + clickNumberButton.getText());
+			    }
+			}
+		}
 	}
+	
+	public class calculateButtonListener implements ActionListener {
+		int orgNum = 0;
+		public void actionPerformed(ActionEvent e) {
+			JButton clickCalButton = (JButton) e.getSource();
+			
+			if (calculation.getText().isEmpty()) { // calculation 필드가 공백일 경우 result 필드의 숫자를 그대로 작성
+				String num = result.getText();
+				int value = Integer.parseInt(num);
+				orgNum = value;
+				calculation.setText("" + value + clickCalButton.getText());
+				result.setText("");
+			} else if (e.getSource() == plusButton) {
+				String num = result.getText();
+				int value = Integer.parseInt(num);
+				orgNum += value;
+				calculation.setText(" " + orgNum + clickCalButton.getText());
+				result.setText("");
+			} else if (e.getSource() == minusButton) {
+				String num = result.getText();
+				int value = Integer.parseInt(num);
+				orgNum -= value;
+				calculation.setText(" " + orgNum + clickCalButton.getText());
+				result.setText("");
+			} else if (e.getSource() == multiplyButton) {
+				String num = result.getText();
+				int value = Integer.parseInt(num);
+				orgNum *= value;
+				calculation.setText(" " + orgNum + clickCalButton.getText());
+				result.setText("");
+			} else if (e.getSource() == divideButton) {
+				String num = result.getText();
+				int value = Integer.parseInt(num);
+				orgNum /= value;
+				calculation.setText(" " + orgNum + clickCalButton.getText());
+				result.setText("");
+			} else if (e.getSource() == equalButton) {
+				String num = result.getText();
+				int value = Integer.parseInt(num);
+				calculation.setText(" " + value + clickCalButton.getText());
+				result.setText(num);
+			}
+			
+			isCalculationPerformed = true;
+		}
+	}
+	
+	
 	public static void main(String[] args) {
 		new Screen();
 	}
