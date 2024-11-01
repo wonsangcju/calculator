@@ -10,7 +10,9 @@ import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.DecimalFormat;
 
+import javax.swing.Action;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -27,25 +29,25 @@ import javax.swing.JTextField;
  * @created 2024.10.23
  * @lastModified 2024.10.23
  * 
+ *
+ *
  * @changelog
  *            <ul>
  *            <li>2024.10.23 09:00 최초 생성</li>
+ *            <li>2024.10.25 10:00 각 패널들을 별도의 메소드로 분리</li>
+ *            <li>2024.10.29 19:00 버튼들을 개별 생성</li>
+ *            <li>2024.10.30 16:00 ActionListener 추가</li>
+ *            <li>2024.10.31 16:00 deleteButtonListener 클래스 추가</li>
+ *            <li>2024.11.01 20:00 nepoButtonListener 클래스 추가</li>
+ *            <li>2024.11.01 20:00 memoryButtonListener 클래스 추가</li>
  *            </ul>
  */
-public class Screen extends JFrame {
-
-	/**
-	 * @changelog
-	 *            <ul>
-	 *            <li>2024.10.23 09:00 최초 생성</li>
-	 *            <li>2024.10.25 10:00 각 패널들을 별도의 메소드로 분리</li>
-	 *            <li>2024.10.29 19:00 버튼들을 개별 생성</li>
-	 *            <li>2024.10.30 16:00 ActionListener 추가</li>
-	 *            </ul>
-	 */
+public class Main extends JFrame {
 
 	JTextField calculation, result;
 
+	JButton memoryClear, memoryRecall, memoryPlus, memoryMinus, memorySave, memoryList;
+	
 	JButton rateButton, clearEntryButton, clearButton, deleteButton, reciprocalButton, squareButton, rootButton,
 			divideButton, sevenButton, eightButton, nineButton, multiplyButton, fourButton, fiveButton, sixButton,
 			minusButton, oneButton, twoButton, threeButton, plusButton, nepoButton, zeroButton, pointButton,
@@ -53,7 +55,7 @@ public class Screen extends JFrame {
 
 	private boolean isCalculationPerformed = false; // 이전에 계산을 한적이 있는지 검사하는 변수
 
-	public Screen() {
+	public Main() {
 		this.setTitle("계산기");
 		this.setSize(335, 540);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -109,6 +111,8 @@ public class Screen extends JFrame {
 		 *            <li>2024.10.25 별도의 메소드로 분리</li>
 		 *            <ul>
 		 */
+		
+		memoryButtonListener memoryListener = new memoryButtonListener();
 
 		JPanel panel2 = new JPanel();
 		panel2.setLayout(new BorderLayout());
@@ -144,18 +148,18 @@ public class Screen extends JFrame {
 		 *            <li>2024.10.23 13:00 최초 생성</li>
 		 *            </ul>
 		 */
-		JButton memoryClear = new JButton();
-		new decorateMemoryButton(memoryPanel, memoryClear, "MC");
-		JButton memoryRecall = new JButton();
-		new decorateMemoryButton(memoryPanel, memoryRecall, "MR");
-		JButton memoryPlus = new JButton();
-		new decorateMemoryButton(memoryPanel, memoryPlus, "M+");
-		JButton memoryMinus = new JButton();
-		new decorateMemoryButton(memoryPanel, memoryMinus, "M-");
-		JButton memorySave = new JButton();
-		new decorateMemoryButton(memoryPanel, memorySave, "MS");
-		JButton memoryList = new JButton();
-		new decorateMemoryButton(memoryPanel, memoryList, "M∨");
+		memoryClear = new JButton();
+		new decorateMemoryButton(memoryPanel, memoryClear, "MC", memoryListener);
+		memoryRecall = new JButton();
+		new decorateMemoryButton(memoryPanel, memoryRecall, "MR", memoryListener);
+		memoryPlus = new JButton();
+		new decorateMemoryButton(memoryPanel, memoryPlus, "M+", memoryListener);
+		memoryMinus = new JButton();
+		new decorateMemoryButton(memoryPanel, memoryMinus, "M-", memoryListener);
+		memorySave = new JButton();
+		new decorateMemoryButton(memoryPanel, memorySave, "MS", memoryListener);
+		memoryList = new JButton();
+		new decorateMemoryButton(memoryPanel, memoryList, "M∨", memoryListener);
 
 		panel2.add(memoryPanel, BorderLayout.SOUTH);
 
@@ -179,6 +183,7 @@ public class Screen extends JFrame {
 		numberButtonListener numListener = new numberButtonListener();
 		calculateButtonListener calListener = new calculateButtonListener();
 		deleteButtonListener deleteListener = new deleteButtonListener();
+		nepoButtonListener nepoListener = new nepoButtonListener();
 
 		rateButton = new JButton();
 		new decorateButton(rateButton, southPanel, "%", 50, 50, 50, calListener);
@@ -221,7 +226,7 @@ public class Screen extends JFrame {
 		plusButton = new JButton();
 		new decorateButton(plusButton, southPanel, "+", 50, 50, 50, calListener);
 		nepoButton = new JButton();
-		new decorateButton(nepoButton, southPanel, "+/-", 59, 59, 59, numListener);
+		new decorateButton(nepoButton, southPanel, "+/-", 59, 59, 59, nepoListener);
 		zeroButton = new JButton();
 		new decorateButton(zeroButton, southPanel, "0", 59, 59, 59, numListener);
 		pointButton = new JButton();
@@ -240,13 +245,23 @@ public class Screen extends JFrame {
 		 * @changelog
 		 *            <ul>
 		 *            <li>2024.10.30 16:00 최초 생성</li>
+		 *            <li>2024.11.01 20:00 소수점 버튼 처리 방법 추가</li>
 		 *            </ul>
 		 */
 
 		public void actionPerformed(ActionEvent e) {
 			JButton clickNumberButton = (JButton) e.getSource();
-
+			
+			//소수점 버튼 처리
+			if (clickNumberButton == pointButton) {
+				if (!result.getText().contains(".")) {
+		            result.setText(result.getText() + ".");
+		        }
+				return;
+			}
+			//숫자 버튼 처리
 			if (isCalculationPerformed) {
+				// 숫자 작성 전에 계산을 한 적이 있다면 필드를 초기화
 				result.setText(clickNumberButton.getText());
 				isCalculationPerformed = false;
 			} else {
@@ -256,6 +271,7 @@ public class Screen extends JFrame {
 					result.setText(result.getText() + clickNumberButton.getText());
 				}
 			}
+			
 		}
 	}
 
@@ -269,16 +285,17 @@ public class Screen extends JFrame {
 		 *            <li>2024.10.30 16:00 최초 생성</li>
 		 *            <li>2024.10.31 12:00 버튼의 종류에 따른 작동을 else if가 아닌 case로 변경</li>
 		 *            <li>2024.10.31 13:00 C버튼, CE버튼 기능 추가</li>
+		 *            <li>2024.10.31 20:00 데이터형 double로 변경</li>
 		 *            </ul>
 		 */
 
-		private int orgNum = 0;
+		private double orgNum = 0;
 		private String lastButton = "";
 
 		public void actionPerformed(ActionEvent e) {
 			JButton clickCalButton = (JButton) e.getSource();
 
-			// "C" 버튼 처리
+			// "C" 버튼 처리 (전체 초기화)
 			if (clickCalButton == clearButton) {
 				calculation.setText("");
 				result.setText("0");
@@ -287,72 +304,135 @@ public class Screen extends JFrame {
 				isCalculationPerformed = false;
 				return;
 			}
-			// "CE" 버튼 처리
+
+			// "CE" 버튼 처리 (현재 입력된 숫자만 초기화)
 			if (clickCalButton == clearEntryButton) {
 				result.setText("0");
-				isCalculationPerformed = true;
 				return;
 			}
 
-			String num = result.getText() ;
-			int value = Integer.parseInt(num); // 현재 숫자
+			double currentValue = Double.parseDouble(result.getText()); // 현재 입력된 숫자
 
-			// 첫 연산 처리
-			if (calculation.getText().isEmpty()) {
-				orgNum = value;
-				calculation.setText("" + value + clickCalButton.getText());
-				result.setText("");
-			} else {
-				// 연산 버튼이 눌러진 상태로 숫자 버튼을 누르지 않고 다시 연산 버튼을 누를 경우
-				if (lastButton.equals("+") || lastButton.equals("-") || lastButton.equals("*")
-						|| lastButton.equals("/")) {
-
-					// 첫 연산 이후 연산 처리
-					switch (lastButton) {
-					// 마지막으로 누른 버튼에 따라 계산
-						case "+":
-							orgNum += value;
-							break;
-						case "-":
-							orgNum -= value;
-							break;
-						case "*":
-							orgNum *= value;
-							break;
-						case "/":
-							if (value == 0) {
-								result.setText("0으로 나눌 수 없습니다");
-								return;
-							} else {
-								orgNum /= value;
-							}
-							break;
-					}
-
-					lastButton = clickCalButton.getText();
-					calculation.setText(orgNum + lastButton); // 다음 연산자로 바꿈
-					result.setText("");
-				} else {
-					calculation.setText(calculation.getText() + clickCalButton.getText());
-				}
-			}
 			// "=" 버튼 처리
 			if (clickCalButton == equalButton) {
-				calculation.setText(calculation.getText() + num + "=");
+				if (!lastButton.isEmpty()) { // 마지막 연산자가 있는 경우만 계산 수행
+					performCalculation(currentValue);
+				}
+				calculation.setText(calculation.getText() + result.getText() + "=");
 				result.setText(String.valueOf(orgNum));
-				lastButton = "";
-			} else {
-				// 다음 연산 처리
-				calculation.setText(orgNum + clickCalButton.getText());
-				result.setText("");
+				lastButton = ""; 
+				isCalculationPerformed = true;
+				return;
+			}
+			// 제곱 버튼 처리
+			if (clickCalButton == squareButton) {
+				orgNum = currentValue * currentValue;
 				lastButton = clickCalButton.getText();
+				calculation.setText("sqr(" + result.getText() + ")");
+				result.setText(String.valueOf(orgNum));
+				isCalculationPerformed = true;
+				return;
+			}
+			// 역수 버튼 처리
+			if (clickCalButton == reciprocalButton) {
+				if (currentValue != 0) {
+					orgNum = 1 / currentValue;
+					lastButton = clickCalButton.getText();
+					calculation.setText("1/(" + result.getText() + ")");
+
+					// 결과 표시를 소수점 8자리로 제한
+					DecimalFormat df = new DecimalFormat("#.########");
+					result.setText(df.format(orgNum));
+
+					isCalculationPerformed = true;
+					return;
+				} else {
+					// 0으로 나눌 경우 초기화
+					result.setText("0으로 나눌 수 없습니다");
+					orgNum = 0;
+					lastButton = "";
+					isCalculationPerformed = false;
+					return;
+				}
+			}
+			// 제곱근 버튼 처리
+			if (clickCalButton == rootButton) {
+				if (currentValue < 0) {
+					// 음수에 제곱근 버튼을 누를 경우 초기화
+					result.setText("입력이 잘못되었습니다.");
+					orgNum = 0;
+					lastButton = "";
+					isCalculationPerformed = false;
+					return;
+				} else {
+					orgNum = Math.sqrt(currentValue); // 제곱근 계산
+					calculation.setText("√(" + result.getText() + ")"); // 수식 표시
+
+					// 결과 표시를 소수점 8자리로 제한
+					DecimalFormat df = new DecimalFormat("#.########");
+					result.setText(df.format(orgNum));
+
+					isCalculationPerformed = true; // 계산 완료 플래그 설정
+					return;
+				}
 			}
 
+			// 연산 버튼 처리
+			if (isCalculationPerformed) {
+				// 연산 버튼이 눌러진 상태로 숫자를 입력하지 않고 다시 연산 버튼을 누를 경우
+				lastButton = clickCalButton.getText();
+				calculation.setText(calculation.getText().replaceAll("[+\\-×÷]$", "") + lastButton);
+			} else {
+				if (!lastButton.isEmpty()) {
+					performCalculation(currentValue);
+				} else {
+					orgNum = currentValue;
+				}
+			}
+
+			lastButton = clickCalButton.getText();
+			calculation.setText(orgNum + lastButton);
+			result.setText(String.valueOf(orgNum));
 			isCalculationPerformed = true;
+		}
+
+		// 실제 계산이 이루어지는 메소드
+		private void performCalculation(double currentValue) {
+			switch (lastButton) {
+			case "+":
+				orgNum += currentValue;
+				break;
+			case "-":
+				orgNum -= currentValue;
+				break;
+			case "×":
+				orgNum *= currentValue;
+				break;
+			case "÷":
+				if (currentValue != 0) {
+					orgNum /= currentValue;
+				} else {
+					// 0으로 나눌 경우 초기화
+					result.setText("0으로 나눌 수 없습니다");
+					orgNum = 0;
+					lastButton = "";
+					isCalculationPerformed = false;
+					return;
+				}
+				break;
+			}
 		}
 	}
 
 	public class deleteButtonListener implements ActionListener {
+		/**
+		 * 삭제버튼을 눌렀을 때 작동되는 클래
+		 * 
+		 * @changelog
+		 *            <ul>
+		 *            <li>2024.10.31 19:00 최초 생성</li>
+		 *            </ul>
+		 */
 		public void actionPerformed(ActionEvent e) {
 			String currentText = result.getText();
 
@@ -367,8 +447,49 @@ public class Screen extends JFrame {
 		}
 	}
 
+	public class nepoButtonListener implements ActionListener {
+		/**
+		 * 부호 반전 버튼을 눌렀을 때 작동하는 클래스
+		 * 
+		 * @changelog
+		 *            <ul>
+		 *            <li>2024.11.01 20:00 최초 생성</li>
+		 */
+		public void actionPerformed(ActionEvent e) {
+			double currentValue = Double.parseDouble(result.getText());
+
+			currentValue = -currentValue;
+
+			result.setText(String.valueOf(currentValue));
+		}
+	}
+
+	public class memoryButtonListener implements ActionListener {
+		private double memoryValue = 0;
+
+	    public void actionPerformed(ActionEvent e) {
+	    	JButton clickMemoryButton = (JButton) e.getSource();
+	    	
+	        double currentValue = Double.parseDouble(result.getText()); // 현재 표시된 값
+	        
+	        if (clickMemoryButton == memoryClear) {
+	        	memoryValue = 0;
+	        } else if (clickMemoryButton == memoryRecall) {
+	        	result.setText(String.valueOf(memoryValue));
+	        } else if (clickMemoryButton == memoryPlus) {
+	        	memoryValue += currentValue;
+	        } else if (clickMemoryButton == memoryMinus) {
+	        	memoryValue -= currentValue;
+	        } else if (clickMemoryButton == memorySave) {
+	        	memoryValue = currentValue;
+	        }
+	        
+	        calculation.setText("");
+	    }
+	}
+	
 	public static void main(String[] args) {
-		new Screen();
+		new Main();
 	}
 
 }
