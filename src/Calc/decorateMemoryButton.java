@@ -21,6 +21,7 @@ public class decorateMemoryButton {
 	 * <ul>
 	 * 	<li>2024.10.23 14:00 최초 생성</li>
 	 * 	<li>2024.10.25 10:00 별도 클래스로 분리</li>
+	 * 	<li>2024.11.01 20:00 listener 매개변수 추가</li>
 	 * </ul>
 	 */
 	
