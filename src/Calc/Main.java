@@ -27,9 +27,8 @@ import javax.swing.JTextField;
  * @version 1.0
  * 
  * @created 2024.10.23
- * @lastModified 2024.10.23
+ * @lastModified 2024.11.01
  * 
- *
  *
  * @changelog
  *            <ul>
@@ -280,6 +279,8 @@ public class Main extends JFrame {
 		/**
 		 * 숫자버튼을 제외한 연산버튼을 눌렀을때 작동하는 리스너 클래스
 		 * 
+		 * @throws ArithmeticException 0에 역수 버튼을 누를 경우
+		 * 
 		 * @changelog
 		 *            <ul>
 		 *            <li>2024.10.30 16:00 최초 생성</li>
@@ -396,8 +397,13 @@ public class Main extends JFrame {
 			isCalculationPerformed = true;
 		}
 
-		// 실제 계산이 이루어지는 메소드
+		/**
+		 * 
+		 * @param currentValue 현재 입력된 숫자
+		 * @throws ArithmeticException 숫자를 0으로 나눌 경우
+		 */
 		private void performCalculation(double currentValue) {
+			// 실제 계산이 이루어지는 메소드
 			switch (lastButton) {
 			case "+":
 				orgNum += currentValue;
